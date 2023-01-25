@@ -1,3 +1,5 @@
+package homework03.data
+
 data class Comment(
     val id: String,
     val replyTo: String,

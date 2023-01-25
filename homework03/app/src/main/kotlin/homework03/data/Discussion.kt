@@ -1,3 +1,5 @@
+package homework03.data
+
 data class Discussion(
     val id: String,
     val author: String,

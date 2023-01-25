@@ -1,3 +1,5 @@
+package homework03
+
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
@@ -44,7 +46,6 @@ private fun StringBuilder.serializeString(value: String) = apply {
 }
 
 private fun <T : Any> StringBuilder.serializeHeader(klass: KClass<T>) = apply {
-    append("")
     val properties = klass.memberProperties
 
     when (klass) {

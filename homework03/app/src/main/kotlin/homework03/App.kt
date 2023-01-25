@@ -1,12 +1,21 @@
+package homework03
+
 import com.soywiz.korio.file.VfsOpenMode
 import com.soywiz.korio.file.std.localCurrentDirVfs
 import com.soywiz.korio.stream.writeString
+import homework03.data.Comment
+import homework03.data.Discussion
+import homework03.data.RedditClient
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 
 fun main(args: Array<String>) {
+    if (args.isEmpty()) {
+        println("No arguments given")
+        return
+    }
     val client = RedditClient()
     val cwd = localCurrentDirVfs
     runBlocking {

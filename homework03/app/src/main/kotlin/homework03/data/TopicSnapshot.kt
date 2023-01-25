@@ -1,3 +1,5 @@
+package homework03.data
+
 data class TopicSnapshot(
     val creationTime: Int,
     val onlineUsers: Int,
