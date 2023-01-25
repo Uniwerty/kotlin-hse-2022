@@ -77,6 +77,9 @@ sealed class FList<T> : Iterable<T> {
             var current: FList<T> = this@Cons
             override fun hasNext(): Boolean = !current.isEmpty
             override fun next(): T {
+                if (!hasNext()) {
+                    throw NoSuchElementException()
+                }
                 val value = (current as Cons<T>).head
                 current = (current as Cons<T>).tail
                 return value
@@ -86,17 +89,37 @@ sealed class FList<T> : Iterable<T> {
         override val size = tail.size + 1
         override val isEmpty = false
 
-        override fun <U> map(f: (T) -> U): FList<U> = Cons(f(head), tail.map(f))
+        // will be reversed :(
+        override fun <U> map(f: (T) -> U): FList<U> = mapImpl(this.reverse(), Nil(), f) // Cons(f(head), tail.map(f))
 
-        override fun filter(f: (T) -> Boolean): FList<T> {
-            return if (f(head)) {
-                Cons(head, tail.filter(f))
-            } else {
-                tail.filter(f)
+        override fun filter(f: (T) -> Boolean): FList<T> = filterImpl(this.reverse(), Nil(), f)
+
+        override fun <U> fold(base: U, f: (U, T) -> U): U = foldImpl(this, base, f) // tail.fold(f(base, head), f)
+
+        private tailrec fun <U> mapImpl(flistT: FList<T>, flistU: FList<U>, f: (T) -> U): FList<U> {
+            return when (flistT) {
+                is Nil -> flistU
+                is Cons -> mapImpl(flistT.tail, Cons(f(flistT.head), flistU), f)
             }
         }
 
-        override fun <U> fold(base: U, f: (U, T) -> U): U = tail.fold(f(base, head), f)
+        private tailrec fun filterImpl(flist: FList<T>, filtered: FList<T>, f: (T) -> Boolean): FList<T> {
+            return when (flist) {
+                is Nil -> filtered
+                is Cons -> if (f(flist.head)) filterImpl(
+                    flist.tail,
+                    Cons(flist.head, filtered),
+                    f
+                ) else filterImpl(flist.tail, filtered, f)
+            }
+        }
+
+        private tailrec fun <U> foldImpl(flist: FList<T>, base: U, f: (U, T) -> U): U {
+            return when (flist) {
+                is Nil -> base
+                is Cons -> foldImpl(flist.tail, f(base, flist.head), f)
+            }
+        }
     }
 
     companion object {
@@ -107,12 +130,12 @@ sealed class FList<T> : Iterable<T> {
 
 // конструирование функционального списка в порядке следования элементов
 // требуемая сложность - O(n)
-fun <T> flistOf(vararg values: T): FList<T> = flistOfByIndex(values, 0)
+fun <T> flistOf(vararg values: T): FList<T> = flistOfByIndex(FList.Nil(), values, values.size - 1)
 
-private fun <T> flistOfByIndex(values: Array<out T>, index: Int): FList<T> {
-    return if (index >= values.size) {
-        FList.Nil<T>()
+private tailrec fun <T> flistOfByIndex(flist: FList<T>, values: Array<out T>, index: Int): FList<T> {
+    return if (index < 0) {
+        flist
     } else {
-        FList.Cons<T>(values[index], flistOfByIndex(values, index + 1))
+        flistOfByIndex(FList.Cons(values[index], flist), values, index - 1)
     }
 }
