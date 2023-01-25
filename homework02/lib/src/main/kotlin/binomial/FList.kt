@@ -89,12 +89,11 @@ sealed class FList<T> : Iterable<T> {
         override val size = tail.size + 1
         override val isEmpty = false
 
-        // will be reversed :(
-        override fun <U> map(f: (T) -> U): FList<U> = mapImpl(this.reverse(), Nil(), f) // Cons(f(head), tail.map(f))
+        override fun <U> map(f: (T) -> U): FList<U> = mapImpl(this.reverse(), Nil(), f)
 
         override fun filter(f: (T) -> Boolean): FList<T> = filterImpl(this.reverse(), Nil(), f)
 
-        override fun <U> fold(base: U, f: (U, T) -> U): U = foldImpl(this, base, f) // tail.fold(f(base, head), f)
+        override fun <U> fold(base: U, f: (U, T) -> U): U = foldImpl(this, base, f)
 
         private tailrec fun <U> mapImpl(flistT: FList<T>, flistU: FList<U>, f: (T) -> U): FList<U> {
             return when (flistT) {
